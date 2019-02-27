@@ -1,0 +1,9 @@
+{
+  "apiPackage": "com.cloudentity.libs.permissions.client.api",
+  "modelPackage": "com.cloudentity.libs.permissions.client.model",
+  "invokerPackage": "com.cloudentity.libs.permissions.client",
+  "groupId":"com.cloudentity.libs.permissions",
+  "artifactId":"client",
+  "artifactVersion":"1.0.0",
+  "library":"feign"
+}

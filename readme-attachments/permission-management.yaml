@@ -1,0 +1,259 @@
+swagger: '2.0'
+info:
+  version: 1.0.0
+  title: Permission Service
+host: local.cloudentity.com
+basePath: /api
+schemes:
+  - https
+consumes:
+  - application/json
+produces:
+  - application/json
+paths:
+  /permissions/application/permission/list:
+    get:
+      tags:
+        - permissions
+      description: |
+        Lists Application Permissions for Application with given applicationId.
+      operationId: applicationListPermissions
+      parameters: []
+      responses:
+        '200':
+          description: List of permissions
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Permission'
+      security:
+        - oauth2_clientCredentials: []
+  /permissions/application/permission:
+    put:
+      tags:
+        - permissions
+      description: |
+        Creates or updates Application Permission
+      operationId: applicationSetPermission
+      parameters:
+        - in: body
+          name: setPermission
+          required: true
+          schema:
+            $ref: '#/definitions/SetPermission'
+      responses:
+        '200':
+          description: Permission set
+        '204':
+          description: 'Permission set, was disabled'
+      security:
+        - oauth2_clientCredentials: []
+  /permissions/application/grant:
+    put:
+      tags:
+        - permissions
+      description: |
+        Grants application permission for principal to optional object.
+      operationId: applicationSetPermissionGrant
+      parameters:
+        - in: body
+          name: permissionGrantSet
+          required: true
+          schema:
+            $ref: '#/definitions/ApplicationPermissionGrantSet'
+      responses:
+        '204':
+          description: Permission granted
+      security:
+        - oauth2_clientCredentials: []
+  /permissions/application/grant/delete:
+      post:
+        tags:
+          - permissions
+        operationId: applicationDeleteGrant
+        parameters:
+          - in: body
+            name: permissionGrantDelete
+            required: true
+            schema:
+              $ref: '#/definitions/ApplicationPermissionGrantDelete'
+        responses:
+          '204':
+            description: Permission revoked
+        security:
+          - oauth2_clientCredentials: []
+  '/permissions/application/grant/principal/{principalType}/{principalId}/list':
+      get:
+        tags:
+          - permissions
+        description: |
+          List all permission grants for principal filtered to permissions belonging to calling application.
+        operationId: applicationListAllPermissionGrantsByPrincipal
+        parameters:
+          - name: principalType
+            in: path
+            required: true
+            type: string
+          - name: principalId
+            in: path
+            required: true
+            type: string
+        responses:
+          '200':
+            description: All Permission grants list
+            schema:
+              type: array
+              items:
+                $ref: '#/definitions/PermissionGrant'
+        security:
+          - oauth2_clientCredentials: []
+securityDefinitions:
+  oauth2_clientCredentials:
+    type: oauth2
+    tokenUrl: 'https://local.cloudentity.com/oauth/token'
+    flow: application
+definitions:
+  Permission:
+    type: object
+    required:
+      - key
+    properties:
+      key:
+        $ref: '#/definitions/PermissionKey'
+      metadata:
+        type: object
+        description: custom JSON data
+        properties: {}
+      grantPolicies:
+        $ref: '#/definitions/GrantAccessPolicies'
+  PermissionKey:
+    type: object
+    required:
+      - name
+    properties:
+      name:
+        type: string
+      customerId:
+        type: string
+      applicationId:
+        type: string
+    example:
+      name: GET_DEVICE
+  SetPermission:
+    type: object
+    required:
+      - name
+    properties:
+      name:
+        type: string
+        example: GET_DEVICE
+      metadata:
+        type: object
+        description: custom JSON data
+        properties: {}
+      grantPolicies:
+        $ref: '#/definitions/GrantAccessPolicies'
+  GrantAccessPolicies:
+    type: object
+    properties:
+      create:
+        $ref: '#/definitions/Policy'
+      delete:
+        $ref: '#/definitions/Policy'
+      list:
+        $ref: '#/definitions/Policy'
+      check:
+        $ref: '#/definitions/Policy'
+  Policy:
+    type: object
+    properties:
+      name:
+        type: string
+  ApplicationPermissionGrantSet:
+    type: object
+    required:
+      - name
+      - principal
+    properties:
+      name:
+        type: string
+        example: GET_FILE
+      principal:
+        type: string
+        example: 'user:3a47f-159ec308-430143-2344d'
+      object:
+        type: string
+        example: 'device:a4e0e-c69e-45e2-bd3e-a176cc'
+      notBefore:
+        type: integer
+        description: epoch timestamp
+      expiresAfter:
+        type: integer
+        description: epoch timestamp
+      metadata:
+        type: object
+        description: custom JSON data
+        properties: {}
+  ApplicationPermissionGrantDelete:
+    type: object
+    required:
+      - name
+      - principal
+    properties:
+      name:
+        type: string
+        example: GET_FILE
+      principal:
+        type: string
+        example: 'user:3a47f-159ec308-430143-2344d'
+      object:
+        type: string
+        example: 'device:a4e0e-c69e-45e2-bd3e-a176cc'
+  PermissionGrant:
+    type: object
+    required:
+      - grantedBy
+      - permissionKey
+      - principal
+    properties:
+      permissionKey:
+        $ref: '#/definitions/PermissionKey'
+      principal:
+        type: string
+        example: 'user:3a47f-159ec308-430143-2344d'
+      object:
+        type: string
+        example: 'device:a4e0e-c69e-45e2-bd3e-a176cc'
+      grantedBy:
+        $ref: '#/definitions/Granter'
+      notBefore:
+        type: integer
+        description: epoch timestamp
+      expiresAfter:
+        type: integer
+        description: epoch timestamp
+      metadata:
+        type: object
+        description: custom JSON data
+        properties: {}
+  Granter:
+    type: object
+    properties:
+      customerId:
+        type: string
+        example: 058f2-7b36-48c0-8174-fe630d
+      applicationId:
+        type: string
+        example: 3a47f-159ec308-430143-2344d
+      userId:
+        type: string
+        example: a4e0e-c69e-45e2-bd3e-a176cc
+      type:
+        type: string
+        example: cloudentity-service
+      id:
+        type: string
+        example: application-service
+    description: |
+      Identifies who created Permission Grant.
+      Either customerId or applicationId or userId or (type and id) must be set.

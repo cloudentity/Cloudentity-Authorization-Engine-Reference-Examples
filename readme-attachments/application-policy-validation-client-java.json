@@ -1,0 +1,9 @@
+{
+  "apiPackage": "com.cloudentity.libs.trustengine.client.api",
+  "modelPackage": "com.cloudentity.libs.trustengine.client.model",
+  "invokerPackage": "com.cloudentity.libs.trustengine.client",
+  "groupId":"com.cloudentity.libs.trustengine",
+  "artifactId":"client",
+  "artifactVersion":"1.0.0",
+  "library":"feign"
+}

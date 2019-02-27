@@ -1,0 +1,13 @@
+<configuration scan="true" scanPeriod="30 seconds">
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>%date{"yyyy-MM-dd'T'HH:mm:ss,SSSXXX", UTC} [%X{x-trace-id}] [%thread] [%-5level] %logger{32} -
+        %msg%n%xEx
+      </pattern>
+    </encoder>
+  </appender>
+  
+  <root level="${LOG_LEVEL:-DEBUG}">
+    <appender-ref ref="STDOUT"/>
+  </root>
+</configuration>

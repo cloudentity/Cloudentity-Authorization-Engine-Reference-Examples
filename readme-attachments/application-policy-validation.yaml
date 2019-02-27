@@ -1,0 +1,129 @@
+swagger: '2.0'
+info:
+  version: 1.0.0
+  title: OrchIS Authz API
+host: local.cloudentity.com
+basePath: /api
+schemes:
+  - https
+consumes:
+  - application/json
+produces:
+  - application/json
+paths:
+  '/authz/application/policy/{policyName}/validate':
+    post:
+      tags:
+        - authz
+      description: |
+        Perform Application Access Policy validation.
+        Request body contains additional data that can be read by Validators.
+      operationId: postAuthzApplicationPolicyWithPolicyNameValidate
+      parameters:
+        - name: X-Original-Authorization
+          in: header
+          description: Optional user access/session token for user context policy validation
+          required: false
+          type: string
+        - name: policyName
+          in: path
+          description: Unique Access Policy name
+          required: true
+          type: string
+        - in: body
+          name: body
+          description: Validators data
+          required: false
+          schema:
+            $ref: '#/definitions/ValidatorsData'
+      responses:
+        '200':
+          description: Access Policy valid
+        '401':
+          description: |
+            Access Policy of type 'authentication' is invalid.
+
+            code = Authentication.Unauthenticated
+
+            message = Unauthenticated
+          schema:
+            $ref: '#/definitions/ValidationInvalid'
+        '403':
+          description: |
+            Access Policy of type 'authorization' is invalid.
+
+            code = AuthorizationUnauthorized
+
+            message = Unauthorized
+          schema:
+            $ref: '#/definitions/ValidationInvalid'
+        '404':
+          description: Policy not found
+      security:
+        - oauth2_implicit: []
+        - oauth2_authorizationCode: []
+        - oauth2_password: []
+        - SsoToken: []
+        - oauth2_clientCredentials: []
+securityDefinitions:
+  oauth2_implicit:
+    type: oauth2
+    authorizationUrl: 'https://local.cloudentity.com/oauth/authorize'
+    flow: implicit
+  oauth2_authorizationCode:
+    type: oauth2
+    tokenUrl: 'https://local.cloudentity.com/oauth/token'
+    flow: application
+  oauth2_password:
+    type: oauth2
+    tokenUrl: 'https://local.cloudentity.com/oauth/token'
+    flow: password
+  oauth2_clientCredentials:
+    type: oauth2
+    tokenUrl: 'https://local.cloudentity.com/oauth/token'
+    flow: application
+  SsoToken:
+    type: apiKey
+    name: token
+    in: header
+definitions:
+  ValidatorsData:
+    type: object
+    additionalProperties:
+      type: object
+    example:
+      my-custom-validator:
+        some-data-object:
+          some-key: some-value
+      my-other-validator:
+        some-other-data-object:
+          some-key: some-value
+  Recovery:
+    required:
+      - type
+    properties:
+      type:
+        type: string
+        description: Type of the recovery
+      id:
+        type: string
+        description: Identifier of the recovery
+    example:
+      id: TotpAuthentication
+      type: MFA
+  ValidationInvalid:
+    properties:
+      code:
+        type: string
+      message:
+        type: string
+      details:
+        type: object
+        properties:
+          recovery:
+            type: array
+            items:
+              $ref: '#/definitions/Recovery'
+responses:
+  AuthorizationUnauthorized:
+    description: Unauthorized
