@@ -1,24 +1,17 @@
 :toc:
+:toclevels: 1
 
 = Cloudentity Authorization Engine Integration
 
-== Introduction & Quick Start
-This repository contains reference source code and examples of integration of your application or API Gateway with Cloudentity
-authorization engine (*TrUST Engine*) for policy validation. By reading this you'll learn how to validate authorization policies with API calls or with use of SDK.
+== Introduction
+This repository contains reference source code and examples of integration of your application (or API Gateway) with Cloudentity
+Authorization Engine (*TrUST Engine*) for policy validation. 
 
-=== What is TrUST engine and what does TrUST stand for?
-The Cloudentity TrUST Engine is not only Authorization Engine that can do RBAC, ABAC, Fine- and Corse- grained permission checks,
-but also answers the question whether User, Service or Thing (*UST*) is trusted enough to access a resource protected by the policy.
+=== Why should I read it?
+By reading this and utilizing code samples in this respository you will learn how to integrate with authorization engine with use of SDK.
 
-=== What's the quickest way to see how to validate a policy?
-Let's try to validate one of pre-defined publicly available policies in the Cloudentity demo IDaaS.
-
- curl -v -X POST https://demo.cloudentity.com/api/authz/application/policy/FULLY_AUTHENTICATED/validate
-
-Since you are unauthenticated the response is `HTTP 401`. The body contains additional hint for the client with mitigation options to make this policy pass. 
-
-Congratulations you have just completed your first policy validation. Read more how to integrate your application
-or API Gateway with TrUST engine for policy validation.
+=== Are there any pre-requisites?
+It is recommended that you have the basic understanding of Cloudentity Authorization Engine and Cloudentity Authorization Policy structure prior going through this instruction. https://www.cloudentity.com/talk-to-us/[Contact us] for more details.
 
 === How do I get the TrUST Engine to integrate with?
 There are two options to get it:
@@ -26,27 +19,34 @@ There are two options to get it:
  * Install it in your local environment and explore all options (https://www.cloudentity.com/talk-to-us/[Contact us] for instruction)
  * Use demo IDaaS exposing TrUST engine APIs (click *Try* at https://www.cloudentity.com/[cloudentity.com] to get access)
 
+=== I hear about Cloudentity TrUST engine for the first time. I want to learn more.
+The Cloudentity TrUST Engine is powerful authorization engine that not only does RBAC, ABAC, Fine- and Corse- grained policy checks,
+but also makes the decision whether User, Service or Thing (*UST*) is trusted enough to access a resource protected by the policy. https://www.cloudentity.com/talk-to-us/[Contact us] for more details
+
+=== I want to try to validate a policy now to see how simple it is
+
+The policies can be defined using policy editor or APIs and validated by an API call. Let's make the curl call to policy validation APIs of Cloudentity demo IDaaS to validate the simplest pre-defined, publicly available policy that alwayss passes. 
+
+ curl -s -v -X POST https://demo.cloudentity.com/api/authz/policy/ALWAYS_PASS/validate
+
+The response is `HTTP/1.1 200 OK` that means that policy passed. You've just validated your first policy. It was simple wasn't it? Continue reading to see how to integrate it with your SDK.
+
 == Application Policy Validation With REST Call
-The policy validated in the example above was a globally available policy that was neither assigned to an application nor tenant.
-Cloudentity is multi-tenant stack and provides application management. Authorization policies are usually created
-in scope of an application and organization that owns that application. The further sections cover integration
-with TrUST engine for application policy validation.
+The `ALWAYS_PASS` policy validated in the example above was a globally available policy that was neither assigned to an application nor tenant. This was used as an example yet such anonymous policy exposure is not the most typical example.
+
+In this instruction we will focus on more typical scenario. We will validate policies assigned to applications. Applications are owned by organizations in the Cloudentity stack. By default the validation of such policies can be performed only by these applications. Before we jump to SDK based integration you will see how the applicaiton authenticates to validate its own policies to learn how it works by example.
 
 [#alwayspasspolicy]
 === How to create a sample policy for my application?
-Log in to Cloudentity user interface as an admin and go to your application in applications tab (or create one with
-Authorization and Resource Server capabilities if application doesn't exist yet).
 
-Once it is done you can create policies in the application's policies tab using graphical policy editor. Let's start with
-the simplest policy that always passes. Create policy with the name *ALWAYS_PASS* and a single validator in it
-so it looks like on the image below.
+First we need to create a sample application and define a policy that we will be validating. Go to the admin user interface and create the *ALWAYS_PASS* policy in an application with Resource Server and Authorization capabilities. The policy should look like the one on the image below. 
 
 image::readme-attachments/OK_policy(always_pass).png[]
 
-The policy name acts as the policy identifier and we'll use it later.
+If you don't know how to create this policy follow the steps here <<createalwayspasspolicystepbystep>>
 
 === How to validate application policy?
-This application policy can only be validated by the application that owns the policy.
+The application policy can only be validated by the application that owns the policy.
 Unlike in case of validation of the publicly available policy in the first example, now the application will have to authenticate
 to make a call to the policy validation endpoint. The authentication will be happening using OAuth2 access_token.
 
@@ -166,7 +166,7 @@ Code of the class can be found link:src/main/java/com/cloudentity/examples/trust
 As you can see everything is as simple as possible. The example code when run will print information that policy was 
 validated successfully or error if for some reason validation failed. 
 
-=== More complex examples
+=== More advanced examples
 As for now we only demonstrated very limited usage of TrUSTEngine.
 To reveal real power of it we need to move towards some more sophisticated access control validation.
 
@@ -371,5 +371,50 @@ java -jar swagger-codegen-cli-2.4.1.jar generate -c permission-management-client
 
 Swagger doc for basic Permission Management can be found link:readme-attachments/permission-management.yaml[here].
 Client json config can be found link:readme-attachments/permission-management-client-java.json[here].
+
+[#createalwayspasspolicystepbystep]
+== How to create the sample ALWAYS_PASS policy step by step
+Log in to Cloudentity user interface as an admin and go to your application in applications tab. 
+
+image::readme-attachments/cloudentity-admin-panel-applications-view.png[]
+
+If you don't have an application yet create one by clicking the create button. Remember to add *Authorization* and *Resource Server* capabilities to the application. 
+
+image::readme-attachments/cloudentity-authorization-engine-admin-panel-create-new-application.png[]
+
+If you can't select more than one capability during the application creation, select one add the second one later by clicking *Add Capability* button on the application view post the application creation.
+
+Once it is done create a policy for this application in the application's policies tab.
+
+image::readme-attachments/cloudentity-authorization-engine-application-view-add-policy.png[]
+
+We will start with the simplest policy that always passes, so when asked about the policy name use the *ALWAYS_PASS* name.
+
+image::readme-attachments/cloudentity-authorization-engine-application-view-add-policy-name.png[]
+
+The graphical editor added a default validator to the policy that is ALWAYS_FAIL that we'll have to replace it with the desired one. Click the garbage bin icon on the validator to remove this validator.
+
+image::readme-attachments/cloudentity-authorization-engine-policy-click-remove-validator.png[]
+
+Confirm the removal
+
+image::readme-attachments/cloudentity-authorization-engine-policy-click-remove-validator-confirm.png[]
+
+Click add new validator on the policy
+
+
+image::readme-attachments/cloudentity-authorization-engine-policy-click-add-validator.png[]
+
+Select the *ALWAYS_PASS* validator
+
+image::readme-attachments/cloudentity-authorization-engine-policy-select-always-pass-validator.png[]
+
+Click save on the policy
+
+image::readme-attachments/cloudentity-authorization-engine-policy-always-pass-validator-save.png[]
+
+You just created the *ALWAYS_PASS* policy with a single validator
+
+image::readme-attachments/cloudentity-authorization-engine-policies-list-in-the-app.png[]
 
 == Frequently Asked Questions
