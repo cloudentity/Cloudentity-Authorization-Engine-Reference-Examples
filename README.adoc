@@ -349,16 +349,16 @@ Having proper Access Token application owner can do several things like:
 
 . List all application permissions
 [source, curl]
-curl https://local.cloudentity.com/api/permissions/application/permission/list -H 'Authorization: Bearer ACCESS_TOKEN'
+curl https://demo.cloudentity.com/api/permissions/application/permission/list -H 'Authorization: Bearer ACCESS_TOKEN'
 . Create new permission
 [source, curl]
-curl -X PUT https://local.cloudentity.com/api/permissions/application/permission -d '{"name":"CAN_ACCESS"}' -H 'Content-Type: application/json' -H 'Authorization: Bearer ACCESS_TOKEN'
+curl -X PUT https://demo.cloudentity.com/api/permissions/application/permission -d '{"name":"CAN_ACCESS"}' -H 'Content-Type: application/json' -H 'Authorization: Bearer ACCESS_TOKEN'
 . Grant permission for principal (Coarse-grained Permissions - RBAC)
 [source, curl]
-curl -X PUT https://local.cloudentity.com/api/permissions/application/grant -d '{"name":"CAN_ACCESS", "principal": "user:123"}' -H 'Content-Type: application/json' -H 'Authorization: Bearer ACCESS_TOKEN'
+curl -X PUT https://demo.cloudentity.com/api/permissions/application/grant -d '{"name":"CAN_ACCESS", "principal": "user:123"}' -H 'Content-Type: application/json' -H 'Authorization: Bearer ACCESS_TOKEN'
 . Grant permission for principal to object (Fine-grained Permissions)
 [source, curl]
-curl -X PUT https://local.cloudentity.com/api/permissions/application/grant -d '{"name":"CAN_ACCESS", "principal": "user:123", "object": "file:some_file.txt"}' -H 'Content-Type: application/json' -H 'Authorization: Bearer ACCESS_TOKEN'
+curl -X PUT https://demo.cloudentity.com/api/permissions/application/grant -d '{"name":"CAN_ACCESS", "principal": "user:123", "object": "file:some_file.txt"}' -H 'Content-Type: application/json' -H 'Authorization: Bearer ACCESS_TOKEN'
 
 [#generatePermissionsClient]
 ==== Generate Permissions SDK
